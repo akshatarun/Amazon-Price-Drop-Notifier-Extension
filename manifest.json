@@ -1,0 +1,12 @@
+{
+    "name": "task1",
+    "description": "pop-up message extension",
+    "version": "1.0",
+    "manifest_version": 2,
+    "background": {
+        "scripts": ["jquery-3.6.0.min.js", "background.js"]
+      },
+    "browser_action": {
+        "default_popup": "popup.html"
+      }
+  }
