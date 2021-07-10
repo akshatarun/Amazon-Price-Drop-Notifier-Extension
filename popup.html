@@ -2,8 +2,21 @@
 <html lang="en">
 <head>
     <title>Click!</title>
+    <!-- <script src="angular.min.js"></script>
+    <script src="angular-ui-router.min.js"></script> -->
+    <script src = "https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.8.2/angular.min.js"></script>
+    <script src = "https://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/1.0.29/angular-ui-router.min.js"></script>
+    <script src="popup.js"></script>
+    <script type="text/ng-template" id="/home.html">
+        <div class="page-header">
+          <h1>Flapper News</h1>
+        </div>
+      
+        <!-- rest of template -->
+      </script>
 </head>
-<body>
-    <h1>My first chrome extension</h1>
+<body ng-app="amazonextension">
+    <!-- <h1>My first chrome extension</h1> -->
+    <ui-view></ui-view>
 </body>
 </html>
