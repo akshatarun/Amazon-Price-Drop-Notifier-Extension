@@ -7,4 +7,9 @@ chrome.runtime.onInstalled.addListener(()=>{
             console.log(response.data);
         }
     });
-})
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    console.log(`I am ${message.form}'s credentials:- username: ${message.username}, password: ${message.password}`);
+    sendResponse();
+});
