@@ -1,0 +1,14 @@
+<body>
+    <div ng-controller="SignupController">
+        <form>
+            <label for="username">Username:</label>
+            <input type="text" name="uname" id="uname" ng-model="username"><br>
+            <label for="password">password:</label>
+            <input type="password" name="password" id="password" ng-model="password"><br>
+            <input type="submit" value="Sign Up" ng-click="signup()">
+        </form>
+        <div ui-sref-active="active">
+            <a href="#!/login">Login</a>
+        </div>
+    </div>
+</body>
