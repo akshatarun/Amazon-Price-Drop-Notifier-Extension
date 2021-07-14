@@ -6,6 +6,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const PORT = 5000;
 const app = express()
+const user = require('./routes/user.js')
 
 // app.use(
 //     express.urlencoded({
@@ -33,5 +34,16 @@ app.post('/products', cors(), (req,res)=>{
     }
     res.json(resp);
 })
+
+/**
+ * Router Middleware
+ * Router - /user/*
+ * Method - *
+ */
+ app.use("/user", cors(), user);
+//  app.post("/user/signup",cors(),(req,res)=>{
+//      console.log("k");
+//  })
+ 
 
 app.listen(PORT,console.log(`Server is listening to port ${PORT}`));
