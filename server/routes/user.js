@@ -3,9 +3,10 @@ const { check, validationResult} = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const router = express.Router();
-const auth = require("../middlewares/auth");
 
-const User = require("../model/User");
+const { User, Item } = require("../model/schema");
+const auth = require('../middlewares/auth');
+const config = require("../config");
 
 /**
  * @method - POST
@@ -16,12 +17,13 @@ const User = require("../model/User");
 router.post(
     "/signup",
     [
-        check("username", "Please Enter a Valid Username")
+        check("username", "Username cannot be empty")
         .not()
         .isEmpty(),
         check("email", "Please enter a valid email").isEmail(),
-        check("password", "Password must have at least 6 characters").isLength({
-            min: 6
+        check("password", "Password must have between 6 and 30 characters").isLength({
+            min: 6,
+            max: 30
         })
     ],
     async (req, res) => {
@@ -31,7 +33,6 @@ router.post(
                 errors: errors.array()
             });
         }
-
         const {
             username,
             email,
@@ -66,7 +67,7 @@ router.post(
 
             jwt.sign(
                 payload,
-                "randomString", {
+                config.randomString, {
                     expiresIn: 10000
                 },
                 (err, token) => {
@@ -76,13 +77,18 @@ router.post(
                     });
                 }
             );
-            res.status(200).json({message:"Account made successfully!"});
         } catch (err) {
-            console.log(err.message);
+            console.error(err.message);
             res.status(500).send("Error in Saving");
         }
     }
 );
+
+/**
+ * @method - POST
+ * @param - /login
+ * @description - User Login
+ */
 
 router.post(
     "/login",
@@ -94,6 +100,7 @@ router.post(
     ],
     async (req, res) => {
       const errors = validationResult(req);
+  
       if (!errors.isEmpty()) {
         return res.status(400).json({
           errors: errors.array()
@@ -107,13 +114,13 @@ router.post(
         });
         if (!user)
           return res.status(400).json({
-            message: "User Not Exist"
+            message: "User Doesn't Exist Or Password Is Incorrect"
           });
   
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch)
           return res.status(400).json({
-            message: "Incorrect Password or User does not exist !"
+            message: "User Doesn't Exist Or Password Is Incorrect"
           });
   
         const payload = {
@@ -124,7 +131,7 @@ router.post(
   
         jwt.sign(
           payload,
-          "secret",
+          config.randomString,
           {
             expiresIn: 3600
           },
@@ -135,7 +142,6 @@ router.post(
             });
           }
         );
-        // res.status(200).send({token:token});
       } catch (e) {
         console.error(e);
         res.status(500).json({
@@ -144,9 +150,94 @@ router.post(
       }
     }
   );
+  
 
-  /**
+/**
  * @method - POST
+ * @param - /track
+ * @description - Track New Item
+ */
+
+router.post('/track', auth, async (request, response) => {
+
+  const { name, identifier, url, price } = request.body;
+  
+  try{
+    const oldItem = await Item.findOne({
+      identifier: identifier
+    });
+
+    if(!oldItem) {
+      newItem = new Item({
+        name, identifier, url, price
+      });
+
+      newItem.save();
+    }
+
+    const user = await User.findByIdAndUpdate(request.user.id, {
+      $addToSet: {
+        "itemList" : identifier
+      }
+    });
+
+    if(!user) {
+      throw new Error('User not found');
+    }
+
+    response.status(200).json({
+      message: "Item Added Successfully"
+    });
+    
+  } catch (e) {
+    console.error(e);
+    response.status(500).json({
+      message: "Server Error"
+    });
+  }
+})
+
+/**
+ * @method - GET
+ * @description - Fetch User Item List
+ * @param - /user/fetch
+ */
+
+router.get('/fetch', auth, async (request, response) => {
+  const id = request.user.id;
+
+  try {
+    const user = await User.findById(id);
+
+    if(!user) {
+      throw new Error('User Not Found');
+    }
+
+    const itemList = await Promise.all(user.itemList.map(async (curr) => {
+      try{
+        const item = await Item.findOne({identifier: curr});
+        return item;
+      } catch (e){
+        throw e;
+      }
+    }));
+
+
+    response.status(200).json({
+      status: 'success',
+      itemList: itemList
+    })
+
+  } catch (e) {
+    console.error(e);
+    response.status(500).json({
+      message: 'Server Error'
+    });
+  }
+})
+
+/**
+ * @method - GET
  * @description - Get LoggedIn User
  * @param - /user/me
  */
@@ -159,6 +250,6 @@ router.get("/me", auth, async (req, res) => {
     } catch (e) {
       res.send({ message: "Error in Fetching user" });
     }
-  });
+});
 
 module.exports = router;

@@ -8,6 +8,9 @@ const PORT = 5000;
 const app = express()
 const user = require('./routes/user.js')
 
+
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
 // app.use(
 //     express.urlencoded({
 //         extended: true
@@ -26,14 +29,14 @@ app.get('/', (req,res)=>{
     res.send("Hi")
 })
 
-app.post('/products', cors(), (req,res)=>{
-    console.log(req.body.testData);
-   // console.log(req.body.testData);
-    resp={
-        data: "Hi i am the response from the server."
-    }
-    res.json(resp);
-})
+// app.post('/products', cors(), (req,res)=>{
+//     console.log(req.body.testData);
+//    // console.log(req.body.testData);
+//     resp={
+//         data: "Hi i am the response from the server."
+//     }
+//     res.json(resp);
+// })
 
 /**
  * Router Middleware
