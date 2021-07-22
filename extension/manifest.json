@@ -1,5 +1,5 @@
 {
-    "name": "Amazon Price Drop Notifier",
+    "name": "Amazon Price Scraper",
     "description": "pop-up message extension",
     "version": "1.0",
     "manifest_version": 2,
